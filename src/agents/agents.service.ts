@@ -24,52 +24,44 @@ export class AgentsService {
     ) { }
 
     async generate(dto: GenerateAgentsDto) {
-        const category = await this.categoryRepo.findOneBy({
-            id: dto.categoryId
-        });
+        return this.agentRepo.manager.transaction(async manager => {
+            const category = await manager.findOne(Category, {
+                where: { id: dto.categoryId },
+            });
 
-        if (!category) {
-            throw new NotFoundException('Category not found');
-        }
+            if (!category) {
+                throw new NotFoundException('Category not found');
+            }
 
-        const log = await this.logRepo.save({
-            quantity: dto.quantity,
-            seed: dto.seed,
-            status: GenerationStatus.PENDING
-        });
+            const log = await manager.save(GenerationLog, {
+                quantity: dto.quantity,
+                seed: dto.seed,
+                status: GenerationStatus.PENDING,
+            });
 
-        try {
             const rng = seedrandom(dto.seed ?? undefined);
 
             const agents = Array.from({ length: dto.quantity }).map((_, index) => {
                 const randomSuffix = Math.floor(rng() * 100000);
-
-                return this.agentRepo.create({
+                return manager.create(Agent, {
                     name: `Agent-${randomSuffix}-${index}`,
                     category,
-                    generationLog: log
+                    generationLog: log,
                 });
             });
 
+            await manager.save(agents);
 
-            await this.agentRepo.save(agents)
-
-            await this.logRepo.update(log.id, {
+            await manager.update(GenerationLog, log.id, {
                 status: GenerationStatus.COMPLETED,
-                completedAt: new Date()
+                completedAt: new Date(),
             });
 
             return {
                 generated: dto.quantity,
                 generationLogId: log.id,
             };
-        } catch (error) {
-            await this.logRepo.update(log.id, {
-                status: GenerationStatus.FAILED,
-                errorMessage: error.message,
-            })
-            throw error;
-        }
+        });
     }
 
     async findAll(query: QueryAgentsDto) {

@@ -5,6 +5,7 @@ import { AppModule } from '../src/app.module';
 
 describe('Agents (e2e)', () => {
   let app: INestApplication;
+  let categoryId: number;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -18,7 +19,27 @@ describe('Agents (e2e)', () => {
         transform: true,
       }),
     );
+
     await app.init();
+
+    // 1️⃣ Intentamos crear la categoría
+    const createResponse = await request(app.getHttpServer())
+      .post('/categories')
+      .send({
+        name: 'Test Category',
+        description: 'Category for e2e tests',
+      });
+
+    // 2️⃣ Si ya existe, la buscamos
+    if (createResponse.status === 409) {
+      const listResponse = await request(app.getHttpServer())
+        .get('/categories')
+        .query({ name: 'Test Category', limit: 1, offset: 0 });
+
+      categoryId = listResponse.body.data[0].id;
+    } else {
+      categoryId = createResponse.body.id;
+    }
   });
 
   afterAll(async () => {
@@ -29,7 +50,7 @@ describe('Agents (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/agents/generate')
       .send({
-        categoryId: 1,
+        categoryId,
         quantity: 2,
         seed: 'test-seed',
       })
@@ -41,7 +62,8 @@ describe('Agents (e2e)', () => {
 
   it('GET /agents should return paginated agents', async () => {
     const response = await request(app.getHttpServer())
-      .get('/agents?limit=5&offset=0')
+      .get('/agents')
+      .query({ limit: 5, offset: 0 })
       .expect(200);
 
     expect(response.body).toHaveProperty('data');
