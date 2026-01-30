@@ -1,3 +1,4 @@
+import { AgentAttribute } from 'src/agent-attributes/entities/agent-attributes.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { GenerationLog } from 'src/generation-logs/entities/generation-log.entity';
 import {
@@ -8,6 +9,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 
@@ -32,6 +34,12 @@ export class Agent {
   @ManyToOne(() => GenerationLog, { nullable: true })
   @JoinColumn({ name: 'generation_log_id' })
   generationLog?: GenerationLog;
+
+  @OneToMany(
+  () => AgentAttribute,
+  attribute => attribute.agent,
+)
+attributes: AgentAttribute[];
 
   @Column({
     type: 'enum',

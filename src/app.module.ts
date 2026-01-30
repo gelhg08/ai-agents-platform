@@ -3,6 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriesModule } from './categories/categories.module';
 import { AgentsModule } from './agents/agents.module';
+import { AgentAttributesModule } from './agent-attributes/agent-attributes.module';
+import { GenerationLogsModule } from './generation-logs/generation-logs.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { AgentsModule } from './agents/agents.module';
     }),
     CategoriesModule,
     AgentsModule,
+    AgentAttributesModule,
+    GenerationLogsModule,
   ],
 })
 export class AppModule { }
