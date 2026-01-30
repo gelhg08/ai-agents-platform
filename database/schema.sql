@@ -15,7 +15,7 @@ CREATE TABLE generation_logs (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   completed_at TIMESTAMP NULL,
   INDEX idx_gen_status (status),
-  INDEX idx_gen_created (created_at)
+  INDEX idx_gen_created (created_at),
   INDEX idx_gen_status_created (status, created_at)
 );
 
