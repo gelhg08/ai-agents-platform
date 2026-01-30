@@ -7,6 +7,7 @@ import { GenerateAgentsDto } from './dto/generate-agents.dto';
 import { QueryAgentsDto } from './dto/query-agents.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
 import { Category } from '../categories/entities/category.entity';
+import seedrandom from 'seedrandom';
 
 @Injectable()
 export class AgentsService {
@@ -38,13 +39,18 @@ export class AgentsService {
         });
 
         try {
-            const agents = Array.from({ length: dto.quantity }).map((value, index) => {
+            const rng = seedrandom(dto.seed ?? undefined);
+
+            const agents = Array.from({ length: dto.quantity }).map((_, index) => {
+                const randomSuffix = Math.floor(rng() * 100000);
+
                 return this.agentRepo.create({
-                    name: `Agent-${Date.now()}-${index}`,
-                    category: category,
+                    name: `Agent-${randomSuffix}-${index}`,
+                    category,
                     generationLog: log
                 });
-            })
+            });
+
 
             await this.agentRepo.save(agents)
 
