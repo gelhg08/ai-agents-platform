@@ -13,14 +13,7 @@ import seedrandom from 'seedrandom';
 export class AgentsService {
     constructor(
         @InjectRepository(Agent)
-        private readonly agentRepo: Repository<Agent>,
-
-        @InjectRepository(GenerationLog)
-        private readonly logRepo: Repository<GenerationLog>,
-
-        @InjectRepository(Category)
-        private readonly categoryRepo: Repository<Category>
-
+        private readonly agentRepo: Repository<Agent>
     ) { }
 
     async generate(dto: GenerateAgentsDto) {
@@ -33,34 +26,41 @@ export class AgentsService {
                 throw new NotFoundException('Category not found');
             }
 
-            const log = await manager.save(GenerationLog, {
+            const log = manager.create(GenerationLog, {
                 quantity: dto.quantity,
                 seed: dto.seed,
                 status: GenerationStatus.PENDING,
             });
+            await manager.save(log);
 
-            const rng = seedrandom(dto.seed ?? undefined);
+            try {
+                const rng = seedrandom(dto.seed ?? undefined);
 
-            const agents = Array.from({ length: dto.quantity }).map((_, index) => {
-                const randomSuffix = Math.floor(rng() * 100000);
-                return manager.create(Agent, {
-                    name: `Agent-${randomSuffix}-${index}`,
-                    category,
-                    generationLog: log,
+                const agents = Array.from({ length: dto.quantity }).map((_, index) => {
+                    const randomSuffix = Math.floor(rng() * 100000);
+                    return manager.create(Agent, {
+                        name: `Agent-${randomSuffix}-${index}`,
+                        category,
+                        generationLog: log,
+                    });
                 });
-            });
 
-            await manager.save(agents);
+                await manager.save(agents);
 
-            await manager.update(GenerationLog, log.id, {
-                status: GenerationStatus.COMPLETED,
-                completedAt: new Date(),
-            });
+                log.status = GenerationStatus.COMPLETED;
+                log.completedAt = new Date();
+                await manager.save(log);
 
-            return {
-                generated: dto.quantity,
-                generationLogId: log.id,
-            };
+                return {
+                    generated: dto.quantity,
+                    generationLogId: log.id,
+                };
+            } catch (error) {
+                log.status = GenerationStatus.FAILED;
+                log.errorMessage = error.message;
+                await manager.save(log);
+                throw error;
+            }
         });
     }
 

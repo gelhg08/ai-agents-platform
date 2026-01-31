@@ -35,13 +35,13 @@ export class CategoriesService {
       where,
       skip: offset,
       take: limit,
-      order: {createdAt: 'DESC'}
+      order: { createdAt: 'DESC' }
     });
-    return { data, total, limit, offset }; 
+    return { data, total, limit, offset };
   }
 
   async findOne(id: number) {
-    const category = await this.repoCategories.findOneBy({id})
+    const category = await this.repoCategories.findOneBy({ id })
     if (!category) {
       throw new NotFoundException('Category not found')
     }
@@ -49,13 +49,22 @@ export class CategoriesService {
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    await this.findOne(id);
-    return this.repoCategories.update(id, updateCategoryDto)
+    const category = await this.findOne(id);
+
+    try {
+      Object.assign(category, updateCategoryDto);
+      return await this.repoCategories.save(category);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Category name already exists');
+      }
+      throw error;
+    }
   }
 
   async remove(id: number) {
     await this.findOne(id);
     await this.repoCategories.delete(id);
-    return {deleted: true}
+    return { deleted: true }
   }
 }
