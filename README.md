@@ -23,7 +23,7 @@ Sistema escalable que permite:
 
 ```bash
 # 1. Clonar y configurar
-git clone <tu-repo>
+git clone https://github.com/gelhg08/ai-agents-platform.git
 cd ai-agents-platform
 cp .env.example .env
 
@@ -34,10 +34,6 @@ cp .env.example .env
 
 # 3. Levantar servicios
 docker-compose up --build -d
-
-# 4. Crear schema de base de datos
-docker exec -i ai_agents_mysql mysql -u your_user -pyour_password ai_agents < database/schema.sql
-```
 
 API disponible en `http://localhost:3000` | Swagger en `/docs`
 
@@ -201,7 +197,7 @@ Cobertura actual:
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 .
