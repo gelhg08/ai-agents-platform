@@ -133,7 +133,7 @@ npm run start:dev
 
 ---
 
-## 🧪 Cómo Probar los Endpoints
+## Cómo Probar los Endpoints
 
 ### Opción 1: Swagger UI
 
@@ -358,7 +358,7 @@ npm run test:e2e
 ```
 ---
 
-## 📊 Bonus Implementados
+## Bonus Implementados
 
 | Feature | Estado | Descripción |
 |---------|--------|-------------|
@@ -386,37 +386,9 @@ Incluye:
 - Schemas de request/response
 - Validaciones
 - Ejemplos interactivos
-
-### Endpoints principales
-
-#### **Categories**
-- `POST /categories` - Crear categoría
-- `GET /categories` - Listar con paginación
-- `GET /categories/:id` - Detalle
-- `PATCH /categories/:id` - Actualizar
-- `DELETE /categories/:id` - Eliminar
-
-#### **Agents**
-- `POST /agents/generate` - Generar N agentes
-- `GET /agents` - Listar con filtros (categoryId, status, name)
-- `GET /agents/:id` - Detalle
-- `PATCH /agents/:id` - Actualizar status/nombre
-
-#### **Agent Attributes**
-- `POST /agents/:id/attributes` - Crear atributo
-- `GET /agents/:id/attributes` - Listar
-- `PATCH /agents/:id/attributes/:key` - Actualizar
-- `DELETE /agents/:id/attributes/:key` - Eliminar
-
-#### **Generation Logs**
-- `GET /generation-logs` - Listar historial
-- `GET /generation-logs?status=completed` - Filtrar por estado
-
 ---
 ```
 ```
-
-## Conclusión
 
 El sistema está diseñado para **crecer en volumen** sin comprometer **consistencia** ni **rendimiento**, manteniendo una API clara, documentada y fácil de probar.
 
