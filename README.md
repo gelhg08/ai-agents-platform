@@ -35,6 +35,9 @@ cp .env.example .env
 # 3. Levantar servicios
 docker-compose up --build -d
 
+#4. Crear esquema
+docker exec -i ai_agents_mysql mysql -u your_user -pyour_password ai_agents < database/schema.sql
+
 API disponible en `http://localhost:3000` | Swagger en `/docs`
 
 ### Local
